@@ -1,8 +1,6 @@
+//	BFS/DFS + a
+//	다시 풀어봐야 할 문제
 #define _CRT_SECURE_NO_WARNINGS
-/*
-	BFS/DFS + α
-	다시 풀어봐야 할 문제
-*/
 #include <iostream>
 #include <vector>
 #include <cstring>
