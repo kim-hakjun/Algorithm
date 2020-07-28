@@ -1,9 +1,12 @@
 #include <string>
 #include <vector>
 #include <stack>
+#include <unordered_map>
 
 #define ABS(A) (A > 0) ? A : -(A)
 using namespace std;
+
+unordered_map<char, int> m;
 
 // 연산 순서 경우의 수
 char oper[6][3] = {
@@ -15,59 +18,58 @@ char oper[6][3] = {
     {'*', '-', '+'}
 };
 
-long long cal(long long X, long long Y, char op) {
-    if (op == '+') return X + Y;
-    else if (op == '-') return X - Y;
-    else return X * Y;
+long long calc(long long a, long long b, char op) {
+    if (op == '+') return a + b;
+    else if (op == '-') return a - b;
+    else if (op == '*') return a * b;
 }
 
-// 후위표기식 
-long long val(int idx, string expression) {
-    long long A, B;
-    int prior[50];
-    for (int i = 0; i < 50; i++) prior[i] = 100;
+long long val(int idx, string exp) {
     for (int i = 0; i < 3; i++) {
-        prior[(int)oper[idx][i]] = i;
+        m[oper[idx][i]] = i;
     }
 
-    stack<long long> num;
-    stack<char> oper;
+    stack<long long> nums;
+    stack<char> opers;
 
-    string temp = "";
-    for (int i = 0; i < expression.length(); i++) {
-        char cur = expression[i];
-        if (cur == '-' || cur == '+' || cur == '*') {
-            num.push(stoll(temp));
+    string temp;
+    for (int i = 0; i < exp.length(); i++) {
+        if (exp[i] == '+' || exp[i] == '-' || exp[i] == '*') {
+            nums.push(stoll(temp));
             temp.clear();
-            while (!oper.empty() && prior[(int)cur] <= prior[(int)oper.top()]) {
-                B = num.top(); num.pop();
-                A = num.top(); num.pop();
-                num.push(cal(A, B, oper.top()));
-                oper.pop();
+
+            while (!opers.empty() && m[opers.top()] >= m[exp[i]]) {
+                long long B = nums.top(); nums.pop();
+                long long A = nums.top(); nums.pop();
+                nums.push(calc(A, B, opers.top()));
+                opers.pop();
             }
-            oper.push(cur);
+            opers.push(exp[i]);
+
         }
         else {
-            temp += cur;
+            temp += exp[i];
         }
     }
-    num.push(stoll(temp));
 
-    while (!oper.empty()) {
-        B = num.top(); num.pop();
-        A = num.top(); num.pop();
-        num.push(cal(A, B, oper.top()));
-        oper.pop();
+    nums.push(stoll(temp));
+    while (!opers.empty()) {
+        long long B = nums.top(); nums.pop();
+        long long A = nums.top(); nums.pop();
+        nums.push(calc(A, B, opers.top()));
+
+        opers.pop();
     }
 
-    return num.top();
+    return nums.top();
 }
 
 long long solution(string expression) {
     long long answer = 0;
 
     for (int i = 0; i < 6; i++) {
-        long long res = ABS(val(i, expression));
+        long long res = val(i, expression);
+        res = ABS(res);
         answer = answer < res ? res : answer;
     }
 
